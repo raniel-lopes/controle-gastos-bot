@@ -33,9 +33,23 @@ class SheetsManager:
                 'https://spreadsheets.google.com/feeds',
                 'https://www.googleapis.com/auth/drive'
             ]
-            creds = ServiceAccountCredentials.from_json_keyfile_name(
-                GOOGLE_SHEETS_CREDENTIALS, scope
-            )
+            
+            # Importar configuração de credenciais JSON
+            from config import GOOGLE_CREDENTIALS_JSON
+            
+            # Tentar usar credenciais da variável de ambiente primeiro
+            if GOOGLE_CREDENTIALS_JSON:
+                import json
+                creds_dict = json.loads(GOOGLE_CREDENTIALS_JSON)
+                creds = ServiceAccountCredentials.from_json_keyfile_dict(
+                    creds_dict, scope
+                )
+            else:
+                # Fallback para arquivo local
+                creds = ServiceAccountCredentials.from_json_keyfile_name(
+                    GOOGLE_SHEETS_CREDENTIALS, scope
+                )
+            
             self.client = gspread.authorize(creds)
             self.spreadsheet = self.client.open_by_key(SPREADSHEET_ID)
             print("✅ Conectado ao Google Sheets")

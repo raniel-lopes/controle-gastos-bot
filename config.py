@@ -2,6 +2,7 @@
 Configurações do bot de controle de gastos
 """
 import os
+import json
 from dotenv import load_dotenv
 
 # Carregar variáveis de ambiente
@@ -12,6 +13,7 @@ TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 
 # Configurações do Google Sheets
 GOOGLE_SHEETS_CREDENTIALS = os.getenv('GOOGLE_SHEETS_CREDENTIALS', 'credentials.json')
+GOOGLE_CREDENTIALS_JSON = os.getenv('GOOGLE_CREDENTIALS')  # JSON string da variável de ambiente
 SPREADSHEET_ID = os.getenv('SPREADSHEET_ID')
 
 # Configurações gerais
