@@ -383,12 +383,12 @@ class SheetsManager:
                     # Calcular valor total da compra
                     valor_total = valor_parcela * total_parcelas
                     
-                    # Adicionar compra
+                    # Adicionar compra (parcela_inicial sempre 1, o sistema calcula a atual baseado no mes_inicio)
                     resultado = self.adicionar_compra(
                         descricao=dados['descricao'],
                         valor_total=valor_total,
                         valor_parcela=valor_parcela,
-                        parcela_inicial=dados['parcela_atual'],
+                        parcela_inicial=1,
                         total_parcelas=total_parcelas,
                         cartao=dados['cartao'],
                         categoria=dados.get('categoria', 'Geral')
