@@ -386,7 +386,7 @@ async def importar_dados(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 continue
             
             descricao = partes[0]
-            valor = float(partes[1].replace(',', '.'))
+            valor_parcela = float(partes[1].replace(',', '.'))
             parcelas = partes[2].split('/')
             parcela_atual = int(parcelas[0])
             total_parcelas = int(parcelas[1])
@@ -394,7 +394,7 @@ async def importar_dados(update: Update, context: ContextTypes.DEFAULT_TYPE):
             
             dados_lista.append({
                 'descricao': descricao,
-                'valor': valor,
+                'valor_parcela': valor_parcela,
                 'parcela_atual': parcela_atual,
                 'total_parcelas': total_parcelas,
                 'cartao': cartao

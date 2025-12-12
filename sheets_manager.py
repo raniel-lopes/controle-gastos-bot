@@ -376,14 +376,12 @@ class SheetsManager:
                         dados['total_parcelas']
                     )
                     
-                    # Calcular valor total e valor da parcela
-                    # Se o usuário informou valor da parcela, calcular o total
-                    valor_informado = dados['valor']
+                    # O usuário informou o valor DA PARCELA na importação
+                    valor_parcela = dados['valor_parcela']
                     total_parcelas = dados['total_parcelas']
                     
-                    # Assumir que o valor informado é o total da compra
-                    valor_total = valor_informado
-                    valor_parcela = valor_total / total_parcelas
+                    # Calcular valor total da compra
+                    valor_total = valor_parcela * total_parcelas
                     
                     # Adicionar compra
                     resultado = self.adicionar_compra(
