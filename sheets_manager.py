@@ -92,13 +92,14 @@ class SheetsManager:
             print(f"❌ Erro ao verificar abas: {e}")
             return False
     
-    def adicionar_compra(self, descricao, valor, parcela_inicial, total_parcelas, cartao, categoria='Geral'):
+    def adicionar_compra(self, descricao, valor_total, valor_parcela, parcela_inicial, total_parcelas, cartao, categoria='Geral'):
         """
         Adiciona nova compra parcelada
         
         Args:
             descricao (str): Descrição da compra
-            valor (float): Valor da parcela
+            valor_total (float): Valor total da compra
+            valor_parcela (float): Valor de cada parcela mensal
             parcela_inicial (int): Parcela inicial (geralmente 1)
             total_parcelas (int): Total de parcelas
             cartao (str): Nome do cartão
@@ -129,7 +130,8 @@ class SheetsManager:
             compra = {
                 'id': novo_id,
                 'descricao': descricao,
-                'valor': valor,
+                'valor_total': valor_total,
+                'valor_parcela': valor_parcela,
                 'parcela_inicial': parcela_inicial,
                 'total_parcelas': total_parcelas,
                 'parcela_atual': parcela_atual,
@@ -142,9 +144,9 @@ class SheetsManager:
                 'observacoes': ''
             }
             
-            # Adicionar na planilha database
+            # Adicionar na planilha database (armazenar valor da parcela mensal)
             ws_db.append_row([
-                novo_id, descricao, valor, parcela_inicial, total_parcelas,
+                novo_id, descricao, valor_parcela, parcela_inicial, total_parcelas,
                 parcela_atual, mes_inicio, cartao, status,
                 agora, agora, categoria, ''
             ])

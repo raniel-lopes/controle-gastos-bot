@@ -90,8 +90,9 @@ async def adicionar_descricao(update: Update, context: ContextTypes.DEFAULT_TYPE
     context.user_data['descricao'] = update.message.text
     await update.message.reply_text(
         f"✅ Descrição: *{update.message.text}*\n\n"
-        "💵 Qual o valor da parcela?\n"
-        "_Exemplo: 63.54 ou 161.90_",
+        "💵 Qual o *valor TOTAL* da compra?\n"
+        "_Exemplo: Se o produto custa 619.00 parcelado, digite 619.00_\n"
+        "_O valor da parcela será calculado automaticamente_",
         parse_mode='Markdown'
     )
     return ADICIONAR_VALOR
@@ -100,11 +101,11 @@ async def adicionar_descricao(update: Update, context: ContextTypes.DEFAULT_TYPE
 async def adicionar_valor(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Recebe o valor"""
     try:
-        valor = float(update.message.text.replace(',', '.'))
-        context.user_data['valor'] = valor
+        valor_total = float(update.message.text.replace(',', '.'))
+        context.user_data['valor_total'] = valor_total
         
         await update.message.reply_text(
-            f"✅ Valor: *{CURRENCY_FORMAT.format(valor)}*\n\n"
+            f"✅ Valor Total: *{CURRENCY_FORMAT.format(valor_total)}*\n\n"
             "🔢 Qual a parcela atual?\n"
             "_Se é uma compra nova, digite 1_\n"
             "_Se já está na parcela 5, digite 5_",
@@ -115,7 +116,7 @@ async def adicionar_valor(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except ValueError:
         await update.message.reply_text(
             "❌ Valor inválido! Digite apenas números.\n"
-            "_Exemplo: 63.54_",
+            "_Exemplo: 619.00_",
             parse_mode='Markdown'
         )
         return ADICIONAR_VALOR
@@ -171,14 +172,18 @@ async def adicionar_cartao(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     # Recuperar dados
     descricao = context.user_data['descricao']
-    valor = context.user_data['valor']
+    valor_total = context.user_data['valor_total']
     parcela_inicial = context.user_data['parcela_inicial']
     total_parcelas = context.user_data['total_parcelas']
+    
+    # Calcular valor da parcela mensal
+    valor_parcela = valor_total / total_parcelas
     
     # Adicionar na planilha
     resultado = sheets.adicionar_compra(
         descricao=descricao,
-        valor=valor,
+        valor_total=valor_total,
+        valor_parcela=valor_parcela,
         parcela_inicial=parcela_inicial,
         total_parcelas=total_parcelas,
         cartao=cartao
@@ -194,7 +199,8 @@ async def adicionar_cartao(update: Update, context: ContextTypes.DEFAULT_TYPE):
 ✅ *Compra adicionada com sucesso!*
 
 📝 {descricao}
-💵 {CURRENCY_FORMAT.format(valor)}
+� Valor Total: {CURRENCY_FORMAT.format(valor_total)}
+💵 Valor/mês: {CURRENCY_FORMAT.format(valor_parcela)}
 📊 Parcela: {parcela_formatada}
 💳 Cartão: {cartao}
 
