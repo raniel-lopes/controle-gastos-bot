@@ -73,8 +73,8 @@ class SheetsManager:
             except:
                 ws = self.spreadsheet.add_worksheet(title=SHEET_DATABASE, rows=1000, cols=15)
                 # Adicionar cabeçalhos
-                ws.update('A1:M1', [[
-                    'ID', 'Descrição', 'Valor', 'Parcela Inicial', 'Total Parcelas',
+                ws.update('A1:N1', [[
+                    'ID', 'Descrição', 'Valor Total', 'Valor Parcela', 'Parcela Inicial', 'Total Parcelas',
                     'Parcela Atual', 'Mês Início', 'Cartão', 'Status',
                     'Data Cadastro', 'Última Atualização', 'Categoria', 'Observações'
                 ]])
@@ -144,9 +144,9 @@ class SheetsManager:
                 'observacoes': ''
             }
             
-            # Adicionar na planilha database (armazenar valor da parcela mensal)
+            # Adicionar na planilha database
             ws_db.append_row([
-                novo_id, descricao, valor_parcela, parcela_inicial, total_parcelas,
+                novo_id, descricao, valor_total, valor_parcela, parcela_inicial, total_parcelas,
                 parcela_atual, mes_inicio, cartao, status,
                 agora, agora, categoria, ''
             ])
@@ -229,13 +229,14 @@ class SheetsManager:
                 total_cartao = 0
                 for compra in lista_compras:
                     descricao_com_parcela = f"{compra['Descrição']} {compra['Parcela Atual']}/{compra['Total Parcelas']}"
-                    valor_formatado = CURRENCY_FORMAT.format(compra['Valor'])
+                    valor_parcela = compra.get('Valor Parcela', compra.get('Valor', 0))
+                    valor_formatado = CURRENCY_FORMAT.format(valor_parcela)
                     
                     ws_visual.update(f'A{linha_atual}:B{linha_atual}', [
                         [descricao_com_parcela, valor_formatado]
                     ])
                     
-                    total_cartao += compra['Valor']
+                    total_cartao += valor_parcela
                     linha_atual += 1
                 
                 # Total do cartão
@@ -284,7 +285,7 @@ class SheetsManager:
             
             # Buscar despesas ativas
             compras = self.listar_compras(status='ativo')
-            total_despesas = sum(c['Valor'] for c in compras)
+            total_despesas = sum(c.get('Valor Parcela', c.get('Valor', 0)) for c in compras)
             
             # Agrupar despesas por cartão
             por_cartao = {}
@@ -292,7 +293,8 @@ class SheetsManager:
                 cartao = compra['Cartão']
                 if cartao not in por_cartao:
                     por_cartao[cartao] = 0
-                por_cartao[cartao] += compra['Valor']
+                valor_parcela = compra.get('Valor Parcela', compra.get('Valor', 0))
+                por_cartao[cartao] += valor_parcela
             
             return {
                 'receitas': total_receitas,
@@ -325,10 +327,10 @@ class SheetsManager:
                     compra['Total Parcelas']
                 )
                 
-                # Atualizar na planilha
-                ws_db.update(f'F{i}', [[parcela_atual]])  # Coluna F = Parcela Atual
-                ws_db.update(f'I{i}', [[status]])  # Coluna I = Status
-                ws_db.update(f'K{i}', [[datetime.now().strftime('%Y-%m-%d %H:%M:%S')]])  # Coluna K = Última Atualização
+                # Atualizar na planilha (Nova estrutura: A=ID, B=Desc, C=ValorTotal, D=ValorParcela, E=ParcInicial, F=TotalParc, G=ParcAtual, H=MesInicio, I=Cartao, J=Status, K=DataCad, L=UltAtualiz)
+                ws_db.update(f'G{i}', [[parcela_atual]])  # Coluna G = Parcela Atual
+                ws_db.update(f'J{i}', [[status]])  # Coluna J = Status
+                ws_db.update(f'L{i}', [[datetime.now().strftime('%Y-%m-%d %H:%M:%S')]])  # Coluna L = Última Atualização
                 
                 if status == 'concluido':
                     finalizadas += 1
